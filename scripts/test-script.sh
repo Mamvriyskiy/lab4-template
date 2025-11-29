@@ -38,39 +38,8 @@ step() {
 
   printf "=== Step %d: scale %s to %s ===\n" "$step" "$deployment" "$replicas"
 
-  if [[ $replicas -eq 0 ]]; then
-    echo "Stopping bonus service..."
-    
-    kubectl scale deployment "$deployment" -n "$namespace" --replicas 0
-    kubectl delete pods -n "$namespace" -l app.kubernetes.io/instance=bonus --ignore-not-found=true
-    
-    # УВЕЛИЧИВАЕМ ОЖИДАНИЕ И ДОБАВЛЯЕМ ПРОВЕРКУ
-    echo "Waiting for bonus to fully stop..."
-    sleep 15  # Увеличиваем до 15 секунд
-    
-    # Дополнительная проверка что сервис недоступен
-    echo "Verifying service is unavailable..."
-    if kubectl get pods -n "$namespace" -l app.kubernetes.io/instance=bonus --no-headers 2>/dev/null | grep -q .; then
-      echo "WARNING: Bonus pods still exist, forcing deletion..."
-      kubectl delete pods -n "$namespace" -l app.kubernetes.io/instance=bonus --force --grace-period=0
-      sleep 10
-    fi
-    
-    echo "✓ Bonus service stopped"
-    
-  else
-    echo "Starting bonus service..."
-    kubectl scale deployment "$deployment" -n "$namespace" --replicas 1
-    
-    # Ждем полного запуска
-    echo "Waiting for bonus to be ready..."
-    kubectl wait --for=condition=ready pod -n "$namespace" -l app.kubernetes.io/instance=bonus --timeout=60s
-    
-    # Дополнительная задержка после ready
-    sleep 5
-    echo "✓ Bonus service started"
-  fi
-
+  kubectl scale deployment "$deployment" -n "$namespace" --replicas "$replicas" 
+  
   newman run \
     --delay-request=100 \
     --folder=step"$step" \
