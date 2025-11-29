@@ -80,18 +80,13 @@ jobs:
           kubectl port-forward service/gateway-bmstu-rsoi 8080:8080 &
           sleep 10
 
-      - name: Run filtered tests
-        run: |
-          # Создаем копию коллекции без failover папок
-          node -e "
-          const collection = require('./v1/postman/collection.json');
-          collection.item = collection.item.filter(item => item.name !== 'failover');
-          require('fs').writeFileSync('./filtered-collection.json', JSON.stringify(collection));
-          "
-          
-          npx newman run filtered-collection.json \
-            -e v1/postman/environment.json \
-            --delay-request 100
+      - name: Run API Tests
+        uses: matt-ball/newman-action@master
+        with:
+          collection: v1/postman/collection.json
+          environment: v1/postman/environment.json
+          delayRequest: 100
+          reporters: '[ "cli" ]'
 
       - name: Autograding
         uses: education/autograding@v1

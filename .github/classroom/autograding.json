@@ -3,7 +3,7 @@
     {
       "name": "Run Test Script",
       "setup": "",
-      "run": "./scripts/test-script.sh v1 gateway-bmstu-rsoi default",
+      "run": "./scripts/test-script.sh v1 bonus-bmstu-rsoi default",
       "input": "",
       "output": "",
       "comparison": "included",
