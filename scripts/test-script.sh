@@ -39,25 +39,7 @@ step() {
   printf "=== Step %d: scale %s to %s ===\n" "$step" "$deployment" "$replicas"
 
   kubectl scale deployment "$deployment" -n "$namespace" --replicas "$replicas" 
-
-  if [[ $replicas -eq 0 ]]; then
-    echo "Waiting for bonus service to stop..."
-    # Ждем пока pod исчезнет (максимум 30 секунд)
-    for i in {1..30}; do
-      pod_count=$(kubectl get pods -n "$namespace" -l app.kubernetes.io/instance=bonus --no-headers 2>/dev/null | wc -l)
-      if [[ $pod_count -eq 0 ]]; then
-        echo "✓ Bonus service stopped"
-        break
-      fi
-      sleep 1
-    done
-  else
-    echo "Waiting for bonus service to start..."
-    # Ждем пока pod будет готов (максимум 30 секунд)
-    kubectl wait --for=condition=ready pod -n "$namespace" -l app.kubernetes.io/instance=bonus --timeout=30s
-    echo "✓ Bonus service started"
-  fi
-  
+  sleep 10
   newman run \
     --delay-request=100 \
     --folder=step"$step" \
