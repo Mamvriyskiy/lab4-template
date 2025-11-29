@@ -56,9 +56,16 @@ jobs:
           yc managed-kubernetes cluster get-credentials cat7m89db7c3nf4asoq7 --external --force > ~/.kube/config
           kubectl cluster-info --kubeconfig ~/.kube/config
 
-          kubectl auth can-i update deployment -n default
-          kubectl get deployment -n default bonus-bmstu-rsoi
+      - name: Debug Kubernetes access
+        run: |
+          kubectl config get-contexts
+          kubectl get nodes
+          kubectl get deployments -n default
 
+      - name: Check permissions
+        run: |
+          kubectl auth can-i update deployment -n default
+          kubectl auth can-i delete pods -n default
 
       # TODO deploy to k8s with liveness and readyness probes
 
