@@ -45,9 +45,11 @@ func (h *Handler) UpdateBonusBonus(c *gin.Context) {
         return
     }
 
-    _ = h.services.UpdateBonusBonus(username, ticketUid, price)
+    updateBonus, _ := h.services.UpdateBonusBonus(username, ticketUid, price)
 
-    c.Status(http.StatusOK)
+    c.JSON(http.StatusOK, gin.H{
+        "updated_balance": updateBonus,
+    })
 }
 
 
@@ -84,4 +86,23 @@ func (h *Handler) UpdateBonus(c *gin.Context) {
     }
 
     c.JSON(http.StatusOK, info)
+}
+
+func (h *Handler) UpdateBonusDelete(c *gin.Context) {
+    username := c.GetHeader("X-User-Name")
+    if username == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "X-User-Name header is required"})
+        return
+    }
+
+    priceStr := c.Param("price")
+
+    price, err := strconv.Atoi(priceStr)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+  
+    h.services.UpdateBonusDelete(username, price)
+    c.Status(http.StatusOK)
 }

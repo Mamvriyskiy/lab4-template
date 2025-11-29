@@ -1,13 +1,13 @@
 package repository
 
 import (
-	model "github.com/Mamvriyskiy/lab2-template/src/flight/model"
+	model "github.com/Mamvriyskiy/lab3-template/src/flight/model"
 	"github.com/jmoiron/sqlx"
 )
 
 type RepoFlight interface {
 	GetFlights(page, size int) (model.FlightResponse, error)
-	GetInfoAboutFlightByFlightNumber(flightNumber string) (model.Flight, error) 
+	GetInfoAboutFlightByFlightNumber(flightNumber string) (model.Flight, error)
 }
 
 type Repository struct {

@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	services "github.com/Mamvriyskiy/lab2-template/src/flight/services"
+	services "github.com/Mamvriyskiy/lab3-template/src/flight/services"
 	"github.com/gin-gonic/gin"
 )
 

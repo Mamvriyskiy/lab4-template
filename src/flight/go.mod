@@ -1,9 +1,9 @@
-module github.com/Mamvriyskiy/lab2-template/src/flight
+module github.com/Mamvriyskiy/lab3-template/src/flight
 
 go 1.25.1
 
 require (
-	github.com/Mamvriyskiy/lab2-template/src/server v0.0.0-20251024185540-62ab2297e791
+	github.com/Mamvriyskiy/lab3-template/src/server v0.0.0-20251114174026-640f55db0201
 	github.com/gin-gonic/gin v1.11.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
@@ -35,11 +35,11 @@ require (
 	go.uber.org/mock v0.5.0 // indirect
 	golang.org/x/arch v0.20.0 // indirect
 	golang.org/x/crypto v0.40.0 // indirect
-	golang.org/x/mod v0.26.0 // indirect
+	golang.org/x/mod v0.25.0 // indirect
 	golang.org/x/net v0.42.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
-	golang.org/x/tools v0.35.0 // indirect
+	golang.org/x/text v0.27.0 // indirect
+	golang.org/x/tools v0.34.0 // indirect
 	google.golang.org/protobuf v1.36.9 // indirect
 )

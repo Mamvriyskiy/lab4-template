@@ -1,8 +1,8 @@
 package repository
 
 import (
+	model "github.com/Mamvriyskiy/lab3-template/src/ticket/model"
 	"github.com/jmoiron/sqlx"
-	model "github.com/Mamvriyskiy/lab2-template/src/ticket/model"
 )
 
 type RepoTicket interface {

@@ -1,8 +1,8 @@
 package services
 
 import (
-	repository "github.com/Mamvriyskiy/lab2-template/src/ticket/repository"
-	model "github.com/Mamvriyskiy/lab2-template/src/ticket/model"
+	model "github.com/Mamvriyskiy/lab3-template/src/ticket/model"
+	repository "github.com/Mamvriyskiy/lab3-template/src/ticket/repository"
 )
 
 type TicketService struct {

@@ -1,8 +1,8 @@
 package services
 
 import (
-	model "github.com/Mamvriyskiy/lab2-template/src/flight/model"
-	"github.com/Mamvriyskiy/lab2-template/src/flight/repository"
+	model "github.com/Mamvriyskiy/lab3-template/src/flight/model"
+	"github.com/Mamvriyskiy/lab3-template/src/flight/repository"
 )
 
 type FlightService struct {

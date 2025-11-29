@@ -2,8 +2,9 @@ package handler
 
 import (
 	"net/http"
+
+	services "github.com/Mamvriyskiy/lab3-template/src/bonus/services"
 	"github.com/gin-gonic/gin"
-	services "github.com/Mamvriyskiy/lab2-template/src/bonus/services"
 )
 
 type Handler struct {
@@ -26,7 +27,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 	bonus.GET("/privilege", h.GetInfoAboutUserPrivilege)
 	bonus.PATCH("/bonus/:ticketUID/:price", h.UpdateBonus)
 	bonus.PATCH("/bonusUpdate/:ticketUID/:price", h.UpdateBonusBonus)
-
+	bonus.DELETE("/bonusUpdateDelete/:price", h.UpdateBonusDelete)
 
 	return router
 }

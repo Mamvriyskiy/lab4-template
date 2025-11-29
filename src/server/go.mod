@@ -1,3 +1,3 @@
-module github.com/Mamvriyskiy/lab2-template/src/server
+module github.com/Mamvriyskiy/lab3-template/src/server
 
 go 1.25.1

@@ -2,8 +2,11 @@ package handler
 
 import (
 	"net/http"
+	"time"
+
+	cb "github.com/Mamvriyskiy/lab3-template/src/gateway/circuitBreaker"
+	services "github.com/Mamvriyskiy/lab3-template/src/gateway/services"
 	"github.com/gin-gonic/gin"
-	services "github.com/Mamvriyskiy/lab2-template/src/gateway/services"
 )
 
 type Handler struct {
@@ -17,32 +20,30 @@ func NewHandler(services *services.Services) *Handler {
 func (h *Handler) InitRouters() *gin.Engine {
 	router := gin.New()
 
+	readCB := &cb.CircuitBreaker{
+		FailureThreshold: 3,
+		RetryTimeout:     5 * time.Second,
+		FailureWindow:    5 * time.Second,
+	}
+
+	router.Use(cb.NewCBMiddleware(readCB, cb.FallbackHandler))
+
 	router.GET("/manage/health", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
 
 	flight := router.Group("api/v1/")
 
-	// Получить список всех перелетов
+	// READ endpoints (идут через circuit breaker)
 	flight.GET("/flights", h.GetInfoAboutFlight)
-
-	// Возвращается информация о пользователе
 	flight.GET("/me", h.GetInfoAboutUser)
-
-	// Получить информацию о всех билетах пользователя
 	flight.GET("/tickets", h.GetInfoAboutAllUserTickets)
-
-	// Получить информацию о конкретном билете пользователя
 	flight.GET("/tickets/:ticketUid", h.GetInfoAboutUserTicket)
-
-	// Покупка билета
-	flight.POST("/tickets", h.BuyTicketUser)
-
-	// Возврат билета
-	flight.DELETE("/tickets/:ticketUid", h.DeleteTicketUSer)
-
-	// Получить информацию о состоянии бонусного счета
 	flight.GET("/privilege", h.GetInfoAboutUserPrivilege)
+
+	// WRITE (не трогаем)
+	flight.POST("/tickets", h.BuyTicketUser)
+	flight.DELETE("/tickets/:ticketUid", h.DeleteTicketUSer)
 
 	return router
 }

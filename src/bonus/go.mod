@@ -1,9 +1,9 @@
-module github.com/Mamvriyskiy/lab2-template/src/bonus
+module github.com/Mamvriyskiy/lab3-template/src/bonus
 
 go 1.25.1
 
 require (
-	github.com/Mamvriyskiy/lab2-template/src/server v0.0.0-20251024185540-62ab2297e791
+	github.com/Mamvriyskiy/lab3-template/src/server v0.0.0-20251114174026-640f55db0201
 	github.com/gin-gonic/gin v1.11.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1

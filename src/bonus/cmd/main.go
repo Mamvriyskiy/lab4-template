@@ -5,10 +5,10 @@ import (
 
 	"github.com/joho/godotenv"
 
-	handler "github.com/Mamvriyskiy/lab2-template/src/bonus/handler"
-	repo "github.com/Mamvriyskiy/lab2-template/src/bonus/repository"
-	services "github.com/Mamvriyskiy/lab2-template/src/bonus/services"
-	server "github.com/Mamvriyskiy/lab2-template/src/server"
+	handler "github.com/Mamvriyskiy/lab3-template/src/bonus/handler"
+	repo "github.com/Mamvriyskiy/lab3-template/src/bonus/repository"
+	services "github.com/Mamvriyskiy/lab3-template/src/bonus/services"
+	server "github.com/Mamvriyskiy/lab3-template/src/server"
 )
 
 func main() {

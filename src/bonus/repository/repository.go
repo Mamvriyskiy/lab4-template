@@ -1,14 +1,15 @@
 package repository
 
 import (
+	model "github.com/Mamvriyskiy/lab3-template/src/bonus/model"
 	"github.com/jmoiron/sqlx"
-	model "github.com/Mamvriyskiy/lab2-template/src/bonus/model"
 )
 
 type RepoBonus interface {
 	GetInfoAboutUserPrivilege(username string) (model.PrivilegeResponse, error)
 	UpdateBonus(username, ticketUID string, price int) (model.PrivilegeInfo, error)
-	UpdateBonusBonus(username, ticketUid string, price int) error
+	UpdateBonusBonus(username, ticketUid string, price int) (int, error)
+	UpdateBonusDelete(username string, price int) error
 }
 
 type Repository struct {

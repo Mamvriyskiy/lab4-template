@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/Mamvriyskiy/lab2-template/src/flight/model"
-	"github.com/Mamvriyskiy/lab2-template/src/flight/repository"
+	"github.com/Mamvriyskiy/lab3-template/src/flight/model"
+	"github.com/Mamvriyskiy/lab3-template/src/flight/repository"
 )
 
 type Flight interface {

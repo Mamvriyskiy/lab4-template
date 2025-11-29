@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	handler "github.com/Mamvriyskiy/lab2-template/src/flight/handler"
-	repo "github.com/Mamvriyskiy/lab2-template/src/flight/repository"
-	services "github.com/Mamvriyskiy/lab2-template/src/flight/services"
-	server "github.com/Mamvriyskiy/lab2-template/src/server"
+	handler "github.com/Mamvriyskiy/lab3-template/src/flight/handler"
+	repo "github.com/Mamvriyskiy/lab3-template/src/flight/repository"
+	services "github.com/Mamvriyskiy/lab3-template/src/flight/services"
+	server "github.com/Mamvriyskiy/lab3-template/src/server"
 	"github.com/joho/godotenv"
 )
 

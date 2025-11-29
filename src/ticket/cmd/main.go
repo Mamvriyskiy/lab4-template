@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	server "github.com/Mamvriyskiy/lab2-template/src/server"
-	handler "github.com/Mamvriyskiy/lab2-template/src/ticket/handler"
-	repo "github.com/Mamvriyskiy/lab2-template/src/ticket/repository"
-	service "github.com/Mamvriyskiy/lab2-template/src/ticket/services"
+	server "github.com/Mamvriyskiy/lab3-template/src/server"
+	handler "github.com/Mamvriyskiy/lab3-template/src/ticket/handler"
+	repo "github.com/Mamvriyskiy/lab3-template/src/ticket/repository"
+	service "github.com/Mamvriyskiy/lab3-template/src/ticket/services"
 	"github.com/joho/godotenv"
 )
 

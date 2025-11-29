@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	model "github.com/Mamvriyskiy/lab2-template/src/flight/model"
+	model "github.com/Mamvriyskiy/lab3-template/src/flight/model"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -50,7 +50,6 @@ func (r *FlightPostgres) GetInfoAboutFlightByFlightNumber(flightNumber string) (
 
 	return flight, nil
 }
-
 
 func (r *FlightPostgres) GetFlights(page, size int) (model.FlightResponse, error) {
 	offset := (page - 1) * size

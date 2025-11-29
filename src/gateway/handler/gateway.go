@@ -5,15 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
-	modelGateway "github.com/Mamvriyskiy/lab2-template/src/gateway/model"
+	modelGateway "github.com/Mamvriyskiy/lab3-template/src/gateway/model"
+	"github.com/Mamvriyskiy/lab3-template/src/gateway/rollback"
 	"github.com/gin-gonic/gin"
 )
 
-func forwardRequest(c *gin.Context, method, targetURL string, headers map[string]string, body []byte) (int, []byte, http.Header, error) {
+func ForwardRequest(c *gin.Context, method, targetURL string, headers map[string]string, body []byte) (int, []byte, http.Header, error) {
 	if len(c.Request.URL.RawQuery) > 0 {
 		targetURL = fmt.Sprintf("%s?%s", targetURL, c.Request.URL.RawQuery)
 	}
@@ -48,7 +50,7 @@ func forwardRequest(c *gin.Context, method, targetURL string, headers map[string
 }
 
 func (h *Handler) GetInfoAboutFlight(c *gin.Context) {
-	status, body, headers, err := forwardRequest(c, "GET", "http://flight-bmstu-rsoi:8060/flight", nil, nil)
+	status, body, headers, err := ForwardRequest(c, "GET", "http://flight-bmstu-rsoi:8060/flight", nil, nil)
 	if err != nil {
 		c.JSON(status, gin.H{"error": err.Error()})
 		return
@@ -66,7 +68,7 @@ func (h *Handler) GetInfoAboutUserTicket(c *gin.Context) {
 
 	// 1️⃣ Запрашиваем билет
 	ticketURL := "http://ticket-bmstu-rsoi:8070/ticket/" + ticketUid
-	status, body, _, err := forwardRequest(c, "GET", ticketURL, nil, nil)
+	status, body, _, err := ForwardRequest(c, "GET", ticketURL, nil, nil)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 		return
@@ -85,7 +87,7 @@ func (h *Handler) GetInfoAboutUserTicket(c *gin.Context) {
 
 	// 2️⃣ Запрашиваем данные о рейсе
 	flightURL := "http://flight-bmstu-rsoi:8060/flight/" + ticket.FlightNumber
-	flightStatus, flightBody, _, err := forwardRequest(c, "GET", flightURL, nil, nil)
+	flightStatus, flightBody, _, err := ForwardRequest(c, "GET", flightURL, nil, nil)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 		return
@@ -124,7 +126,7 @@ func (h *Handler) GetInfoAboutAllUserTickets(c *gin.Context) {
 	}
 
 	headers := map[string]string{"X-User-Name": username}
-	status, body, respHeaders, err := forwardRequest(c, "GET", "http://ticket-bmstu-rsoi:8070/tickets", headers, nil)
+	status, body, respHeaders, err := ForwardRequest(c, "GET", "http://ticket-bmstu-rsoi:8070/tickets", headers, nil)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 		return
@@ -146,7 +148,7 @@ func (h *Handler) GetInfoAboutAllUserTickets(c *gin.Context) {
 			continue
 		}
 		flightURL := "http://flight-bmstu-rsoi:8060/flight/" + ticket.FlightNumber
-		flightStatus, flightBody, _, err := forwardRequest(c, "GET", flightURL, nil, nil)
+		flightStatus, flightBody, _, err := ForwardRequest(c, "GET", flightURL, nil, nil)
 		if err != nil {
 			c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 			return
@@ -186,9 +188,11 @@ func (h *Handler) GetInfoAboutUserPrivilege(c *gin.Context) {
 	}
 
 	headers := map[string]string{"X-User-Name": username}
-	status, body, respHeaders, err := forwardRequest(c, "GET", "http://bonus-bmstu-rsoi:8050/privilege", headers, nil)
+	status, body, respHeaders, err := ForwardRequest(c, "GET", "http://bonus-bmstu-rsoi:8050/privilege", headers, nil)
 	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"message": "Bonus Service unavailable",
+		})
 		return
 	}
 
@@ -211,7 +215,7 @@ func (h *Handler) GetInfoAboutUser(c *gin.Context) {
 	}
 
 	headers := map[string]string{"X-User-Name": username}
-	status, body, respHeaders, err := forwardRequest(c, "GET", "http://ticket-bmstu-rsoi:8070/tickets", headers, nil)
+	status, body, respHeaders, err := ForwardRequest(c, "GET", "http://ticket-bmstu-rsoi:8070/tickets", headers, nil)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 		return
@@ -233,7 +237,7 @@ func (h *Handler) GetInfoAboutUser(c *gin.Context) {
 			continue
 		}
 		flightURL := "http://flight-bmstu-rsoi:8060/flight/" + ticket.FlightNumber
-		flightStatus, flightBody, _, err := forwardRequest(c, "GET", flightURL, nil, nil)
+		flightStatus, flightBody, _, err := ForwardRequest(c, "GET", flightURL, nil, nil)
 		if err != nil {
 			c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 			return
@@ -261,9 +265,12 @@ func (h *Handler) GetInfoAboutUser(c *gin.Context) {
 		})
 	}
 
-	status, BonusBody, respHeaders, err := forwardRequest(c, "GET", "http://bonus-bmstu-rsoi:8050/privilege", headers, nil)
+	status, BonusBody, respHeaders, err := ForwardRequest(c, "GET", "http://bonus-bmstu-rsoi:8050/privilege", headers, nil)
 	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
+		c.JSON(http.StatusOK, gin.H{
+			"tickets":   tickets,
+			"privilege": gin.H{},
+		})
 		return
 	}
 
@@ -339,25 +346,44 @@ func (h *Handler) BuyTicketUser(c *gin.Context) {
 	}
 
 	// Покупаем билет
-	status, body, _, err := forwardRequest(c, "POST", "http://ticket-bmstu-rsoi:8070/ticket", headers, bodyBytes)
+	status, body, _, err := ForwardRequest(c, "POST", "http://ticket-bmstu-rsoi:8070/ticket", headers, bodyBytes)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 		return
 	}
+
 	uid := strings.TrimSpace(string(body))
 
 	var privilege = PrivilegeInfo{
 		Status:      "GOLD",
-		Balance:     1650,
+		Balance:     1500,
 		BalanceDiff: 0,
 	}
 
 	if reqData.PaidFromBalance {
 		curlBouns := "http://bonus-bmstu-rsoi:8050/bonus/" + uid + "/" + strconv.Itoa(reqData.Price)
 		// Получаем данные с бонусного счета
-		statusBonus, bodyBonus, _, err := forwardRequest(c, "PATCH", curlBouns, headers, nil)
-		if err != nil {
-			c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
+		statusBonus, bodyBonus, _, err := ForwardRequest(c, "PATCH", curlBouns, headers, nil)
+		if err != nil || status >= 400 {
+			// rollback
+			// _, _, _, rollbackErr := ForwardRequest(c, "DELETE", "http://ticket-bmstu-rsoi:8070/ticket/", headers, bodyBytes)
+			// if rollbackErr != nil {
+			// 	log.Printf("Rollback failed: %v", rollbackErr)
+			// }
+
+			// ставим в Redis очередь на повтор
+			if err := rollback.EnqueueRetry(rollback.RetryRequest{
+				Method:  "POST",
+				URL:     "http://localhost:8080/ticket",
+				Headers: headers,
+				Body:    bodyBytes,
+			}); err != nil {
+				log.Printf("Failed to enqueue request: %v", err)
+			}
+
+			c.JSON(http.StatusServiceUnavailable, gin.H{
+				"message": "Bonus Service unavailable",
+			})
 			return
 		}
 
@@ -373,16 +399,45 @@ func (h *Handler) BuyTicketUser(c *gin.Context) {
 	}
 
 	curlUpdateBouns := "http://bonus-bmstu-rsoi:8050/bonusUpdate/" + uid + "/" + strconv.Itoa(reqData.Price)
-	_, _, _, err = forwardRequest(c, "PATCH", curlUpdateBouns, headers, nil)
-	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
+	_, bodyBonus, _, err := ForwardRequest(c, "PATCH", curlUpdateBouns, headers, nil)
+	if err != nil || status >= 400 {
+		// rollback
+		// _, _, _, rollbackErr := ForwardRequest(c, "DELETE", "http://ticket-bmstu-rsoi:8070/ticket/", headers, bodyBytes)
+		// if rollbackErr != nil {
+		// 	log.Printf("Rollback failed: %v", rollbackErr)
+		// }
+
+		// ставим в Redis очередь на повтор
+		if err := rollback.EnqueueRetry(rollback.RetryRequest{
+			Method:  "POST",
+			URL:     "http://localhost:8080/ticket",
+			Headers: headers,
+			Body:    bodyBytes,
+		}); err != nil {
+			log.Printf("Failed to enqueue request: %v", err)
+		}
+
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"message": "Bonus Service unavailable",
+		})
 		return
 	}
+
+	type BonusResponse struct {
+		UpdatedBalance int `json:"updated_balance"`
+	}
+
+	var bonusResp BonusResponse
+	if err := json.Unmarshal(bodyBonus, &bonusResp); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to parse bonus response"})
+		return
+	}
+	privilege.Balance = bonusResp.UpdatedBalance
 
 	flightNumber := reqData.FlightNumber
 
 	flightURL := "http://flight-bmstu-rsoi:8060/flight/" + flightNumber
-	flightStatus, flightBody, _, err := forwardRequest(c, "GET", flightURL, nil, nil)
+	flightStatus, flightBody, _, err := ForwardRequest(c, "GET", flightURL, nil, nil)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 		return
@@ -441,8 +496,10 @@ func (h *Handler) DeleteTicketUSer(c *gin.Context) {
 		return
 	}
 
+	headers := map[string]string{"X-User-Name": username}
+
 	ticketURL := "http://ticket-bmstu-rsoi:8070/ticket/" + ticketUid
-	status, body, _, err := forwardRequest(c, "PATCH", ticketURL, nil, nil)
+	status, body, _, err := ForwardRequest(c, "PATCH", ticketURL, nil, nil)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 		return
@@ -451,6 +508,19 @@ func (h *Handler) DeleteTicketUSer(c *gin.Context) {
 	if status != http.StatusOK {
 		c.Data(status, "application/json", body)
 		return
+	}
+
+	curlUpdateBouns := "http://bonus-bmstu-rsoi:8050/bonusUpdateDelete/" + strconv.Itoa(150)
+	_, _, _, err = ForwardRequest(c, "DELETE", curlUpdateBouns, headers, nil)
+	if err != nil || status >= 400 {
+		// ставим в Redis очередь на повтор
+		if err := rollback.EnqueueRetry(rollback.RetryRequest{
+			Method:  "DELETE",
+			URL:     "http://bonus-bmstu-rsoi:8050/bonusUpdateDelete/" + strconv.Itoa(150),
+			Headers: headers,
+		}); err != nil {
+			log.Printf("Failed to enqueue request: %v", err)
+		}
 	}
 
 	c.Status(http.StatusNoContent)
