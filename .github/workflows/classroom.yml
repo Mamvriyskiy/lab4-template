@@ -56,17 +56,8 @@ jobs:
           yc managed-kubernetes cluster get-credentials cat7m89db7c3nf4asoq7 --external --force > ~/.kube/config
           kubectl cluster-info --kubeconfig ~/.kube/config
 
-          helm uninstall ticket || true
-          helm install ticket ./helm_service -f ./helm_service/values_ticket.yaml
-          helm uninstall flight || true
-          helm install flight ./helm_service -f ./helm_service/values_flight.yaml
-          helm uninstall bonus || true
-          helm install bonus ./helm_service -f ./helm_service/values_bonus.yaml
-          helm uninstall gateway || true
-          helm install gateway ./helm_service -f ./helm_service/values_gateway.yaml
-          sleep 60
-
-          sudo bash -c "echo '158.160.179.204 rsoi-lab.ru' >> /etc/hosts"
+          kubectl auth can-i update deployment -n default
+          kubectl get deployment -n default bonus-bmstu-rsoi
 
       # TODO deploy to k8s with liveness and readyness probes
 
