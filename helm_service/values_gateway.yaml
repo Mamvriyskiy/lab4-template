@@ -1,4 +1,15 @@
+serviceAccount:
+  create: true
+  name: ""
+
+autoscaling:
+  enabled: true
+  minReplicas: 1    # Минимальное количество подов
+  maxReplicas: 10   # Максимальное количество подов  
+  targetCPUUtilizationPercentage: 80  # Масштабировать при 80% CPU
+
 service:
+  type: ClusterIP
   name: gateway
   port: 8080
 
@@ -9,3 +20,6 @@ image:
 
 ingress:
   host: "rsoi-lab.ru"
+
+data:
+  DATABASE_URL: "postgresql://program:test@postgresql.default.svc.cluster.local:5432/tickets"

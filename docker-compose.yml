@@ -14,7 +14,7 @@ services:
     ports:
       - "8050:8050"
     environment:
-      DATABASE_URL: "postgresql://program:test@postgresql.default.svc.cluster.local/bonus"
+      DATABASE_URL: "postgresql://program:program@postgres:5432/privileges"
     depends_on:
       postgres:
         condition: service_healthy
@@ -26,7 +26,7 @@ services:
     ports:
       - "8060:8060"
     environment:
-      DATABASE_URL: "postgresql://program:test@postgresql.default.svc.cluster.local/flights"
+      DATABASE_URL: "postgresql://program:program@postgres:5432/flights"
     depends_on:
       postgres:
         condition: service_healthy
@@ -38,7 +38,7 @@ services:
     ports:
       - "8070:8070"
     environment:
-      DATABASE_URL: "postgresql://program:test@postgresql.default.svc.cluster.local/tickets"
+      DATABASE_URL: "postgresql://program:program@postgres:5432/tickets"
     depends_on:
       postgres:
         condition: service_healthy

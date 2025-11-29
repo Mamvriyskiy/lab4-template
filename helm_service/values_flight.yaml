@@ -1,6 +1,17 @@
+serviceAccount:
+  create: true
+  name: ""
+
 service:
+  type: ClusterIP
   name: flight
   port: 8060
+
+autoscaling:
+  enabled: true
+  minReplicas: 1    # Минимальное количество подов
+  maxReplicas: 10   # Максимальное количество подов  
+  targetCPUUtilizationPercentage: 80  # Масштабировать при 80% CPU
 
 image:
   repository: "mamre32/fight"
