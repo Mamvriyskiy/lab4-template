@@ -73,6 +73,18 @@ jobs:
       # - name: Wait before services are ready
       #   run: kubectl wait -n default -l app.kubernetes.io/name=bmstu-rsoi pod --for=condition=Ready --timeout=3m
       
+      - name: Setup Kubernetes access
+        run: |
+          echo "${{ secrets.YC_SERVICE_ACCOUNT_KEY }}" > sa-key.json
+          yc config set service-account-key sa-key.json
+          yc config set cloud-id b1gc22nq88j1ubeekuaq
+          yc config set folder-id b1gtbc67fv6n4vd28msi
+          yc managed-kubernetes cluster get-credentials cat7m89db7c3nf4asoq7 --external
+          
+          # Проверяем подключение
+          kubectl cluster-info
+          kubectl get nodes
+
       # TODO setup parameters in classroom/autograding.json
       - name: Setup port forwarding
         run: |
