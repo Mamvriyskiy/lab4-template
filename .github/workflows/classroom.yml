@@ -56,6 +56,8 @@ jobs:
           yc managed-kubernetes cluster get-credentials cat7m89db7c3nf4asoq7 --external --force > ~/.kube/config
           kubectl cluster-info --kubeconfig ~/.kube/config
 
+          kubectl config set-context --current --namespace=default
+
       - name: Debug Kubernetes access
         run: |
           kubectl config get-contexts
