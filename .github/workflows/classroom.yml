@@ -58,10 +58,10 @@ jobs:
 
           helm uninstall ticket || true
           helm install ticket ./helm_service -f ./helm_service/values_ticket.yaml
-          helm uninstall loyalty || true
-          helm install loyalty ./helm_service -f ./helm_service/values_flight.yaml
-          helm uninstall reservation || true
-          helm install reservation ./helm_service -f ./helm_service/values_bonus.yaml
+          helm uninstall flight || true
+          helm install flight ./helm_service -f ./helm_service/values_flight.yaml
+          helm uninstall bonus || true
+          helm install bonus ./helm_service -f ./helm_service/values_bonus.yaml
           helm uninstall gateway || true
           helm install gateway ./helm_service -f ./helm_service/values_gateway.yaml
           sleep 60
