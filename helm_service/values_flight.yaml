@@ -14,7 +14,7 @@ autoscaling:
   targetCPUUtilizationPercentage: 80  # Масштабировать при 80% CPU
 
 image:
-  repository: "mamre32/fight"
+  repository: "mamre32/flight"
   pullPolicy: Always
   tag: "latest"
 
