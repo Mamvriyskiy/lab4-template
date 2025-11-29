@@ -1,0 +1,14 @@
+service:
+  name: bonus
+  port: 8050
+
+image:
+  repository: "mamre32/bonus"
+  pullPolicy: Always
+  tag: "latest"
+
+ingress:
+  host: "rsoi-lab.ru"
+
+data:
+  DATABASE_URL: "postgresql://program:test@postgresql.default.svc.cluster.local:5432/bonus"

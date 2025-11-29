@@ -1,0 +1,14 @@
+service:
+  name: flight
+  port: 8060
+
+image:
+  repository: "mamre32/fight"
+  pullPolicy: Always
+  tag: "latest"
+
+ingress:
+  host: "rsoi-lab.ru"
+
+data:
+  DATABASE_URL: "postgresql://program:test@postgresql.default.svc.cluster.local:5432/flights"

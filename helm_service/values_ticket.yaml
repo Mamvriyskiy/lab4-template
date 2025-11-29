@@ -1,0 +1,14 @@
+service:
+  name: ticket
+  port: 8070
+
+image:
+  repository: "mamre32/ticket"
+  pullPolicy: Always
+  tag: "latest"
+
+ingress:
+  host: "rsoi-lab.ru"
+
+data:
+  DATABASE_URL: "postgresql://program:test@postgresql.default.svc.cluster.local:5432/tickets"
