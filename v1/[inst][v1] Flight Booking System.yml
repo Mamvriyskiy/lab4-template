@@ -3,7 +3,7 @@ info:
   title: Flight Booking System
   version: "1.0"
 servers:
-  - url: http://localhost:8080
+  - url: http://rsoi-lab.ru
 paths:
   /api/v1/flights:
     get:

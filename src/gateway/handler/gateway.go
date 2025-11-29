@@ -374,7 +374,7 @@ func (h *Handler) BuyTicketUser(c *gin.Context) {
 			// ставим в Redis очередь на повтор
 			if err := rollback.EnqueueRetry(rollback.RetryRequest{
 				Method:  "POST",
-				URL:     "http://localhost:8080/ticket",
+				URL:     "http://gateway-bmstu-rsoi:8080/ticket",
 				Headers: headers,
 				Body:    bodyBytes,
 			}); err != nil {
@@ -410,7 +410,7 @@ func (h *Handler) BuyTicketUser(c *gin.Context) {
 		// ставим в Redis очередь на повтор
 		if err := rollback.EnqueueRetry(rollback.RetryRequest{
 			Method:  "POST",
-			URL:     "http://localhost:8080/ticket",
+			URL:     "http://gateway-bmstu-rsoi/ticket",
 			Headers: headers,
 			Body:    bodyBytes,
 		}); err != nil {
