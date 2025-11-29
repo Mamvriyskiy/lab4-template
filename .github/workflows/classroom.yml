@@ -27,46 +27,46 @@ jobs:
         with:
           version: 'v3.16.4'
 
-      - name: Install Yandex Cloud CLI
-        run: |
-          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
-          echo "${HOME}/yandex-cloud/bin" >> $GITHUB_PATH
-          echo "Yandex Cloud CLI installed and added to PATH"
+      # - name: Install Yandex Cloud CLI
+      #   run: |
+      #     curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+      #     echo "${HOME}/yandex-cloud/bin" >> $GITHUB_PATH
+      #     echo "Yandex Cloud CLI installed and added to PATH"
 
-      - name: Docker build
-        run: docker compose build
+      # - name: Docker build
+      #   run: docker compose build
 
-      - name: Publish to Docker Hub
-        run: |
-          docker login -u mamre32 -p ${{secrets.DOCKERHUB_PASSWORD}}
-          docker compose push
+      # - name: Publish to Docker Hub
+      #   run: |
+      #     docker login -u mamre32 -p ${{secrets.DOCKERHUB_PASSWORD}}
+      #     docker compose push
 
-      - name: Publish to Yandex Cloud
-        timeout-minutes: 10
-        env:
-          YC_SERVICE_ACCOUNT_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
-        run: |
-          echo "$YC_SERVICE_ACCOUNT_KEY" > sa-key.json
-          export YC_SERVICE_ACCOUNT_KEY_FILE=sa-key.json
-          yc config set service-account-key sa-key.json
-          yc config set cloud-id b1gc22nq88j1ubeekuaq
-          yc config set folder-id b1gtbc67fv6n4vd28msi
-          mkdir -p ~/.kube
-          yc managed-kubernetes cluster list
-          yc managed-kubernetes cluster get-credentials cat7m89db7c3nf4asoq7 --external --force > ~/.kube/config
-          kubectl cluster-info --kubeconfig ~/.kube/config
+      # - name: Publish to Yandex Cloud
+      #   timeout-minutes: 10
+      #   env:
+      #     YC_SERVICE_ACCOUNT_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
+      #   run: |
+      #     echo "$YC_SERVICE_ACCOUNT_KEY" > sa-key.json
+      #     export YC_SERVICE_ACCOUNT_KEY_FILE=sa-key.json
+      #     yc config set service-account-key sa-key.json
+      #     yc config set cloud-id b1gc22nq88j1ubeekuaq
+      #     yc config set folder-id b1gtbc67fv6n4vd28msi
+      #     mkdir -p ~/.kube
+      #     yc managed-kubernetes cluster list
+      #     yc managed-kubernetes cluster get-credentials cat7m89db7c3nf4asoq7 --external --force > ~/.kube/config
+      #     kubectl cluster-info --kubeconfig ~/.kube/config
 
-          helm uninstall ticket || true
-          helm install ticket ./helm_service -f ./helm_service/values_ticket.yaml
-          helm uninstall flight || true
-          helm install flight ./helm_service -f ./helm_service/values_flight.yaml
-          helm uninstall bonus || true
-          helm install bonus ./helm_service -f ./helm_service/values_bonus.yaml
-          helm uninstall gateway || true
-          helm install gateway ./helm_service -f ./helm_service/values_gateway.yaml
-          sleep 60
+      #     helm uninstall ticket || true
+      #     helm install ticket ./helm_service -f ./helm_service/values_ticket.yaml
+      #     helm uninstall flight || true
+      #     helm install flight ./helm_service -f ./helm_service/values_flight.yaml
+      #     helm uninstall bonus || true
+      #     helm install bonus ./helm_service -f ./helm_service/values_bonus.yaml
+      #     helm uninstall gateway || true
+      #     helm install gateway ./helm_service -f ./helm_service/values_gateway.yaml
+      #     sleep 60
 
-          sudo bash -c "echo '158.160.179.204 rsoi-lab.ru' >> /etc/hosts"
+      #     sudo bash -c "echo '158.160.179.204 rsoi-lab.ru' >> /etc/hosts"
 
       # TODO deploy to k8s with liveness and readyness probes
 
