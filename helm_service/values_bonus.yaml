@@ -8,10 +8,10 @@ service:
   port: 8050
 
 autoscaling:
-  enabled: true
-  minReplicas: 1    # Минимальное количество подов
-  maxReplicas: 10   # Максимальное количество подов  
-  targetCPUUtilizationPercentage: 80  # Масштабировать при 80% CPU
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
 
 image:
   repository: "mamre32/bonus"
