@@ -1491,7 +1491,7 @@
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "http://rsoi-lab.ru"
+			"value": "http://localhost:8080"
 		},
 		{
 			"key": "flightNumber",

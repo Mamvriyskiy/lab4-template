@@ -74,6 +74,11 @@ jobs:
       #   run: kubectl wait -n default -l app.kubernetes.io/name=bmstu-rsoi pod --for=condition=Ready --timeout=3m
       
       # TODO setup parameters in classroom/autograding.json
+      - name: Setup port forwarding
+        run: |
+          kubectl port-forward service/gateway-bmstu-rsoi 8080:8080 &
+          sleep 10
+
       - name: Run API Tests
         uses: matt-ball/newman-action@master
         with:
