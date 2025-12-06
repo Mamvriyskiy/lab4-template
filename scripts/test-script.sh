@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
 set -e
-set -o pipefail
-set -x  # Включаем трассировку для GitHub Actions
 
 variant=${1:-${VARIANT}}
 deployment=${2:-${DEPLOYMENT_NAME}}
 namespace=${3:-${NAMESPACE}}
 
 [[ -z $namespace ]] && namespace="default"
+
+path=$(dirname "$0")
 
 timed() {
   end=$(date +%s)
@@ -19,63 +19,53 @@ timed() {
   dt3=$(($dt2 - 3600 * $dh))
   dm=$(($dt3 / 60))
   ds=$(($dt3 - 60 * $dm))
+
   LC_NUMERIC=C printf "\nTotal runtime: %02d min %02d seconds\n" "$dm" "$ds"
 }
 
 success() {
-  echo "=== Running success scenario ===" >&2
   newman run \
     --delay-request=100 \
     --folder=success \
     --export-environment "$variant"/postman/environment.json \
     --environment "$variant"/postman/environment.json \
     "$variant"/postman/collection.json
-  echo "=== Success scenario completed ===" >&2
 }
 
 step() {
-  local step_num=$1
-  local replicas
-  if [[ $((step_num % 2)) -eq 0 ]]; then
-    replicas=1
-  else
-    replicas=0
-  fi
+  local step=$1
+  [[ $((step % 2)) -eq 0 ]] && replicas=1 || replicas=0
 
-  echo "=== Step $step_num: Scaling deployment '$deployment' in namespace '$namespace' to $replicas replicas ===" >&2
+  printf "=== Step %d: scale %s to %s ===\n" "$step" "$deployment" "$replicas"
 
-  kubectl scale deployment "$deployment" -n "$namespace" --replicas="$replicas"
+  kubectl scale deployment "$deployment" -n "$namespace" --replicas "$replicas" 
 
-  # Ждём состояния pod перед запуском теста
-  if [[ $replicas -eq 1 ]]; then
-    echo "Waiting for deployment '$deployment' to become available..."
-    kubectl wait --for=condition=available deployment "$deployment" -n "$namespace" --timeout=90s
-  else
-    echo "Waiting for pods of deployment '$deployment' to be deleted..."
-    kubectl wait --for=delete pod -l app.kubernetes.io/name="$deployment" -n "$namespace" --timeout=90s || true
-  fi
-
-  echo "=== Step $step_num: Running Newman tests ===" >&2
   newman run \
     --delay-request=100 \
-    --folder=step"$step_num" \
+    --folder=step"$step" \
     --export-environment "$variant"/postman/environment.json \
     --environment "$variant"/postman/environment.json \
     "$variant"/postman/collection.json
 
-  echo "=== Step $step_num completed ===" >&2
+  printf "=== Step %d completed ===\n" "$step"
 }
 
 start=$(date +%s)
 trap 'timed $start' EXIT
 
-echo "=== Start test scenario ===" >&2
+printf "=== Start test scenario ===\n"
 
-# Выполнение успешного сценария
+# success execute
 success
 
-# Чередуем остановку и запуск сервиса
+# stop service
 step 1
+
+# start service
 step 2
+
+# stop service
 step 3
+
+# start service
 step 4
