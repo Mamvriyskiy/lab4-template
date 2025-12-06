@@ -42,74 +42,65 @@ jobs:
       #     docker compose push
 
       - name: Publish to Yandex Cloud
-        timeout-minutes: 15
+        timeout-minutes: 10
         env:
           YC_SERVICE_ACCOUNT_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
         run: |
-          set -e
-          set -o pipefail
-          set -x  # трассировка команд
-
-          # ==== Настройка Yandex Cloud CLI ====
           echo "$YC_SERVICE_ACCOUNT_KEY" > sa-key.json
           export YC_SERVICE_ACCOUNT_KEY_FILE=sa-key.json
           yc config set service-account-key sa-key.json
           yc config set cloud-id b1gc22nq88j1ubeekuaq
           yc config set folder-id b1gtbc67fv6n4vd28msi
-
-          # ==== Настройка KUBECONFIG ====
           mkdir -p ~/.kube
-          export KUBECONFIG=$HOME/.kube/config
-          yc managed-kubernetes cluster get-credentials cat7m89db7c3nf4asoq7 --external --force > "$KUBECONFIG"
-          kubectl cluster-info
+          yc managed-kubernetes cluster list
+          yc managed-kubernetes cluster get-credentials cat7m89db7c3nf4asoq7 --external --force > ~/.kube/config
+          kubectl cluster-info --kubeconfig ~/.kube/config
 
-          # ==== Установка Helm Chart ====
-          for svc in ticket flight bonus gateway; do
-            helm uninstall $svc || true
-            helm install $svc ./helm_service -f ./helm_service/values_$svc.yaml
-            # Ждём доступность deployment
-            kubectl wait --for=condition=available deployment/$svc-bmstu-rsoi -n default --timeout=120s
-          done
+          helm uninstall ticket || true
+          helm install ticket ./helm_service -f ./helm_service/values_ticket.yaml
+          helm uninstall flight || true
+          helm install flight ./helm_service -f ./helm_service/values_flight.yaml
+          helm uninstall bonus || true
+          helm install bonus ./helm_service -f ./helm_service/values_bonus.yaml
+          helm uninstall gateway || true
+          helm install gateway ./helm_service -f ./helm_service/values_gateway.yaml
 
-          # ==== Настройка /etc/hosts ====
           sudo bash -c "echo '158.160.179.204 rsoi-lab.ru' >> /etc/hosts"
+
 
       - name: Debug Kubernetes access
         run: |
-          set -x
           kubectl config get-contexts
           kubectl get nodes
           kubectl get deployments -n default
-          kubectl get pods -n default --show-labels
 
       - name: Check permissions
         run: |
-          set -x
           kubectl auth can-i update deployment -n default
           kubectl auth can-i delete pods -n default
 
-      - name: Wait for services to be ready
-        run: |
-          set -x
-          kubectl wait -n default -l app.kubernetes.io/name=bmstu-rsoi pod --for=condition=Ready --timeout=3m
+      # TODO deploy to k8s with liveness and readyness probes
 
+      - name: Wait before services are ready
+        run: kubectl wait -n default -l app.kubernetes.io/name=bmstu-rsoi pod --for=condition=Ready --timeout=3m
+      
+
+      # TODO setup parameters in classroom/autograding.json
       - name: Setup port forwarding
         run: |
-          set -x
           kubectl port-forward service/gateway-bmstu-rsoi 8080:8080 &
           sleep 10
 
-      - name: Run API Tests
-        run: |
-          set -x
-          # По строчно и с отключённой буферизацией
-          export NODE_OPTIONS="--no-warnings"
-          export stdbuf_out=$(which stdbuf || true)
-          stdbuf -oL -eL newman run v1/postman/collection.json \
-            --environment v1/postman/environment.json \
-            --delay-request 100 \
-            --reporters cli,json
+      - name: Make test script executable
+        run: chmod +x ./scripts/test-script.sh
 
+      - name: Run API Tests
+        timeout-minutes: 5
+        run: ./scripts/test-script.sh
+        env:
+          VARIANT: v1
+          DEPLOYMENT_NAME: bonus-bmstu-rsoi
+          NAMESPACE: default
 
       - name: Autograding
         uses: education/autograding@v1
