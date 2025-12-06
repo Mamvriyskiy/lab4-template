@@ -68,7 +68,7 @@ jobs:
             helm uninstall $svc || true
             helm install $svc ./helm_service -f ./helm_service/values_$svc.yaml
             # Ждём доступность deployment
-            kubectl wait --for=condition=available deployment/$svc -n default --timeout=120s
+            kubectl wait --for=condition=available deployment/$svc-bmstu-rsoi -n default --timeout=120s
           done
 
           # ==== Настройка /etc/hosts ====
