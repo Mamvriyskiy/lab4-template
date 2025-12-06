@@ -37,15 +37,16 @@ step() {
   [[ $((step % 2)) -eq 0 ]] && replicas=1 || replicas=0
 
   printf "=== Step %d: scale %s to %s ===\n" "$step" "$deployment" "$replicas"
+  kubectl scale deployment "$deployment" -n "$namespace" --replicas "$replicas"
+  sleep 2  # дождаться начала масштабирования
 
-  kubectl scale deployment "$deployment" -n "$namespace" --replicas "$replicas" 
-
+  # Сохраняем вывод newman в файл и сразу печатаем
   newman run \
     --delay-request=100 \
     --folder=step"$step" \
     --export-environment "$variant"/postman/environment.json \
     --environment "$variant"/postman/environment.json \
-    "$variant"/postman/collection.json
+    "$variant"/postman/collection.json | tee /dev/tty
 
   printf "=== Step %d completed ===\n" "$step"
 }
