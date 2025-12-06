@@ -91,7 +91,7 @@ jobs:
       - name: Wait for services to be ready
         run: |
           set -x
-          kubectl wait -n default -l app.kubernetes.io/instance=bmstu-rsoi pod --for=condition=Ready --timeout=3m
+          kubectl wait -n default -l app.kubernetes.io/name=bmstu-rsoi pod --for=condition=Ready --timeout=3m
 
       - name: Setup port forwarding
         run: |
