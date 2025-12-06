@@ -56,7 +56,17 @@ jobs:
           yc managed-kubernetes cluster get-credentials cat7m89db7c3nf4asoq7 --external --force > ~/.kube/config
           kubectl cluster-info --kubeconfig ~/.kube/config
 
-          kubectl config set-context --current --namespace=default
+          helm uninstall ticket || true
+          helm install ticket ./helm_service -f ./helm_service/values_ticket.yaml
+          helm uninstall flight || true
+          helm install flight ./helm_service -f ./helm_service/values_flight.yaml
+          helm uninstall bonus || true
+          helm install bonus ./helm_service -f ./helm_service/values_bonus.yaml
+          helm uninstall gateway || true
+          helm install gateway ./helm_service -f ./helm_service/values_gateway.yaml
+
+          sudo bash -c "echo '158.160.179.204 rsoi-lab.ru' >> /etc/hosts"
+
 
       - name: Debug Kubernetes access
         run: |

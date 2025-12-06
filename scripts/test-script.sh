@@ -38,8 +38,12 @@ step() {
 
   printf "=== Step %d: scale %s to %s ===\n" "$step" "$deployment" "$replicas"
 
-  kubectl scale deployment "$deployment" -n "$namespace" --replicas "$replicas" 
-  
+  kubectl scale deployment "$deployment" -n default --replicas "$replicas"
+
+  echo "namespace = '$namespace'"
+  kubectl get deployments -A
+
+
   newman run \
     --delay-request=100 \
     --folder=step"$step" \
